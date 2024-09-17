@@ -1,30 +1,30 @@
-import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
-import { TasksService } from './tasks.service';
-import { Task } from './task.model';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { CreateTaskDTO } from './dto/create-task';
+import { UpdateTask } from './dto/update-task';
+import { Task } from './task.entity';
+import { TasksService } from './tasks.service';
 @Controller('tasks')
 export class TasksController {
 
     constructor(private taskService: TasksService) { }
-
-    @Get('/')
-    getTasks(): Task[] {
-        const tasks = this.
-            taskService.findAllTasks()
-        console.log(tasks)
-
-        return tasks
+    @Get()
+    getTasks(): Promise<Task[]> {
+        return this.taskService.getAllTasks();
     }
 
     @Get(':id')
-    getTaskById(@Param('id') taskId: number): Task{
-        return this.taskService.FindById(taskId);
+    getTaskById(@Param('id') taskId: number): Promise<Task> {
+        return this.taskService.getTaskById(taskId);
     }
-
 
     @Post('/')
-    // @HttpCode(404)
-    createTask(@Body() task: CreateTaskDTO): Task {
-        return this.taskService.createTask(task)
+    createTask(@Body() task: CreateTaskDTO): Promise<Task> {
+        return this.taskService.saveTask(task)
     }
+
+    @Put(':id')
+    updateTask(@Param('id') taskId: number, @Body() task:UpdateTask): Promise<Task>{
+        return this.taskService.updateTask(taskId,task);
+    }
+
 }
