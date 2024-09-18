@@ -1,15 +1,17 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { CreateTaskDTO } from './dto/create-task';
 import { UpdateTask } from './dto/update-task';
 import { Task } from './task.entity';
 import { TasksService } from './tasks.service';
+import { TaskStatus } from './task-status';
+import { Pagination } from './dto/pagination';
 @Controller('tasks')
 export class TasksController {
 
     constructor(private taskService: TasksService) { }
     @Get()
-    getTasks(): Promise<Task[]> {
-        return this.taskService.getAllTasks();
+    getTasks(@Query('status') status:TaskStatus,@Query('name') name:string, @Query() pagination:Pagination): Promise<Task[]> {
+        return this.taskService.getAllTasks(status,name,pagination);
     }
 
     @Get(':id')

@@ -6,6 +6,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateTask } from './dto/update-task';
 import { Task } from './task.entity';
+import { Pagination } from './dto/pagination';
+import { DEFAULT_LIMIT } from 'src/utils/pagination-util';
 @Injectable()
 export class TasksService {
 
@@ -14,7 +16,7 @@ export class TasksService {
 
     async getTaskById(id: number): Promise<Task> {
         Logger.log(`Fetching task by Id ${id}`)
-        const task = await this.taskRepository.findOneBy({ id: id })
+        const task = await this.taskRepository.findOneBy({id:id})
         if (!task) {
             throw new NotFoundException(`Task with ID "${id}" not found`)
         }
@@ -39,10 +41,28 @@ export class TasksService {
     }
 
 
-    async getAllTasks(): Promise<Task[]> {
+    async getAllTasks(status: TaskStatus, name: string, pagination: Pagination): Promise<Task[]> {
+       const queryOptions: any = {}
+       queryOptions.where = {};
         try {
-            Logger.log("Fetching all tasks")
-            return this.taskRepository.find();
+            if (status) {
+                queryOptions.where.status = status;
+            }
+            if (name) {
+                queryOptions.where.name = name;
+            }
+            if (pagination) {
+                queryOptions.skip = pagination.skip;  
+                queryOptions.take = pagination.limit ?? DEFAULT_LIMIT; 
+            }
+            if (status || name || pagination) {
+                Logger.log(`Applying filters with status = ${status} name = ${name}`)
+                return this.taskRepository.find(queryOptions);
+            }
+            else {
+                Logger.log("Fetching all tasks")
+                return this.taskRepository.find();
+            }
         }
         catch (error) {
             Logger.error('Exception occurred while fetching tasks')
