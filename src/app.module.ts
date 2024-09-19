@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TasksModule } from './tasks/tasks.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [TasksModule,TypeOrmModule.forRoot({
@@ -14,8 +15,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     database:'task-mgmt',
     autoLoadEntities:true,
     synchronize: true
-    // connectTimeoutMS:10000
-  })],
+  }), AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
